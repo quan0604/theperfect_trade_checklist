@@ -1,0 +1,9 @@
+MetaTrader5
+pandas
+pytz
+streamlit
+TA-Lib
+openai
+yaml
+
+

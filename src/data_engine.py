@@ -83,14 +83,15 @@ def load_watchlist_from_yaml(file_path="watchlist.yaml"):
     """
     Load watchlist symbols from a YAML file.
     Supports majors, crosses, commodities groups.
-    Returns a flat list of all symbols.
+    Returns a flat list of all symbols (auto uppercase, strip special chars).
     """
     with open(file_path, encoding="utf-8") as f:
         y = yaml.safe_load(f)
     symbols = []
     for group in y.values():
-        symbols.extend([s.replace("/", "") for s in group])
-    return symbols
+        # Xử lý ký tự đặc biệt và đổi về viết hoa
+        symbols.extend([s.upper().replace("/", "").replace("-", "") for s in group])
+    return sorted(list(set(symbols)))  # unique + sorted
 
 WATCHLIST = load_watchlist_from_yaml()
 
