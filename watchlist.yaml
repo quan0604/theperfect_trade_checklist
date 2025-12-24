@@ -1,0 +1,26 @@
+majors:
+  - EURUSD
+  - GBPUSD
+  - USDJPY
+  - AUDUSD
+  - USDCHF
+  - USDCAD
+  - NZDUSD
+crosses:
+  - EURGBP
+  - EURJPY
+  - GBPJPY
+  - AUDJPY
+  - EURAUD
+  - EURCAD
+  - GBPCHF
+  - NZDCAD
+  - EURCAD
+  - AUDCHF
+  - CHFJPY
+  - GBPCAD
+commodities:
+  - XAUUSD
+  - XAGUSD
+  - USOIL
+
