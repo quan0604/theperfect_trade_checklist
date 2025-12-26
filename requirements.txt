@@ -4,6 +4,7 @@ pytz
 streamlit
 TA-Lib
 openai
-yaml
+pyyaml
+python-dotenv
 
 

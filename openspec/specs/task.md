@@ -1,275 +1,146 @@
-# Task List & Project Roadmap
-
-This document tracks the development progress of the **Trading Tool Project**. Tasks are organized by phase and updated as work progresses.
-
----
-
-## 📊 Project Status Overview
-
-**Current Phase:** Phase 1 - Foundation & Data Engineering  
-**Overall Completion:** ~20%  
-**Last Updated:** 24/12/2025 21:41
-
-### Quick Stats
-- ✅ **Completed:** 3 tasks (Design specs, MT5 connection, Python env)
-- 🚧 **In Progress:** 0 tasks
-- ⏳ **Pending:** 42 tasks
-- 🔴 **Blocked:** 0 tasks
-
----
-
-## 🗺️ Development Phases
-
-### Phase 1: Foundation & Data Engineering (0-20%)
-Build core data infrastructure and MT5 integration
-
-### Phase 2: Analytics & Logic (20-50%)
-Implement technical analysis and confluence scoring
-
-### Phase 3: AI Integration (50-70%)
-Add AI validation and pattern confirmation
-
-### Phase 4: User Interface (70-85%)
-Build Streamlit dashboard and visualizations
-
-### Phase 5: Testing & Optimization (85-100%)
-Verify, test, and optimize the complete system
-
----
-
-## 📋 Detailed Task List
-
-### Phase 1: Foundation & Data Engineering
-
-| ID | Task | Priority | Status | Owner | Notes |
-|----|------|----------|--------|-------|-------|
-| 1.1 | Write technical specifications | High | ✅ Done | - | All spec files completed |
-| 1.2 | Setup Python environment & dependencies | High | ✅ Done | - | Python 3.13.1, MT5 & pandas installed |
-| 1.3 | Connect to MetaTrader 5 terminal | High | ✅ Done | - | Completed 24/12 - function working |
-| 1.4 | Implement multi-timeframe data fetch | High | ⏳ Todo | - | Weekly, Daily, 4H, 1H, 30m |
-| 1.5 | Organize DataFrames structure | Medium | ⏳ Todo | - | Standard format for all TFs |
-| 1.6 | Load watchlist from YAML | Medium | ⏳ Todo | - | Parse watchlist.yaml |
-| 1.7 | Implement error handling for data fetch | Medium | ⏳ Todo | - | Retry logic, graceful degradation |
-| 1.8 | Add data caching mechanism | Low | ⏳ Todo | - | Cache for 5 minutes |
-| 1.9 | Move credentials to .env file | High | ⏳ Todo | - | Security: Remove hardcoded credentials |
-
-**Phase 1 Completion:** 33.3% (3/9 tasks)
-
----
-
-### Phase 2: Analytics & Logic
-
-| ID | Task | Priority | Status | Owner | Notes |
-|----|------|----------|--------|-------|-------|
-| 2.1 | Calculate EMA 50 on all timeframes | High | ⏳ Todo | - | Use ta-lib |
-| 2.2 | Detect AOI zones (4H focus) | High | ⏳ Todo | - | Swing high/low, 50 candles |
-| 2.3 | Implement trend detection | High | ⏳ Todo | - | Bullish/Bearish/Sideways |
-| 2.4 | Detect psychological price levels | Medium | ⏳ Todo | - | Round numbers, 50 pip intervals |
-| 2.5 | Implement pattern detection | High | ⏳ Todo | - | Break & Retest, H&S |
-| 2.6 | Calculate high TF confluence | High | ⏳ Todo | - | 7 factors scoring system |
-| 2.7 | Calculate signal TF confluence | High | ⏳ Todo | - | 1H + 30m scoring |
-| 2.8 | Aggregate overall confluence | High | ⏳ Todo | - | Weighted average (0.6 / 0.4) |
-| 2.9 | Determine structure quality | Medium | ⏳ Todo | - | Good/Medium/Bad |
-| 2.10 | Volume analysis implementation | Medium | ⏳ Todo | - | Above/below average detection |
-
-**Phase 2 Completion:** 0% (0/10 tasks)
-
----
-
-### Phase 3: AI Integration
-
-| ID | Task | Priority | Status | Owner | Notes |
-|----|------|----------|--------|-------|-------|
-| 3.1 | Setup OpenAI API integration | High | ⏳ Todo | - | API key in .env |
-| 3.2 | Build AI prompt templates | High | ⏳ Todo | - | For pattern validation |
-| 3.3 | Send MTF data to LLM | Medium | ⏳ Todo | - | Format data for AI |
-| 3.4 | Parse LLM responses | Medium | ⏳ Todo | - | Extract validation & confidence |
-| 3.5 | Adjust confluence based on AI | Medium | ⏳ Todo | - | ±10% adjustment |
-| 3.6 | Generate AI recommendations | Medium | ⏳ Todo | - | Trade/Wait/Avoid advice |
-| 3.7 | Implement AI error handling | Low | ⏳ Todo | - | Fallback to non-AI mode |
-| 3.8 | Add rate limiting for API | Low | ⏳ Todo | - | Prevent quota exhaustion |
-
-**Phase 3 Completion:** 0% (0/8 tasks)
-
----
-
-### Phase 4: User Interface
-
-| ID | Task | Priority | Status | Owner | Notes |
-|----|------|----------|--------|-------|-------|
-| 4.1 | Setup initial Streamlit app | High | ⏳ Todo | - | Basic structure |
-| 4.2 | Create sidebar with controls | High | ⏳ Todo | - | Symbol select, days slider |
-| 4.3 | Build overview table | High | ⏳ Todo | - | All symbols, sorted by confluence |
-| 4.4 | Implement MTF charts | High | ⏳ Todo | - | Plotly with EMA 50 |
-| 4.5 | Create checklist UI | Medium | ⏳ Todo | - | Factor breakdown per symbol |
-| 4.6 | Display AI opinions | Medium | ⏳ Todo | - | Opinion panel |
-| 4.7 | Show trade recommendations | Medium | ⏳ Todo | - | Entry/SL/TP display |
-| 4.8 | Add color coding | Low | ⏳ Todo | - | Green/Yellow/Red for scores |
-| 4.9 | Implement detail view | Medium | ⏳ Todo | - | Expandable per symbol |
-
-**Phase 4 Completion:** 0% (0/9 tasks)
-
----
-
-### Phase 5: Testing & Optimization
-
-| ID | Task | Priority | Status | Owner | Notes |
-|----|------|----------|--------|-------|-------|
-| 5.1 | Write unit tests for data module | High | ⏳ Todo | - | Mock MT5 connection |
-| 5.2 | Write unit tests for logic module | High | ⏳ Todo | - | Test confluence calculations |
-| 5.3 | Integration testing | High | ⏳ Todo | - | End-to-end flow |
-| 5.4 | Backtest MTF strategy | Medium | ⏳ Todo | - | Historical data validation |
-| 5.5 | Adjust scoring weights | Medium | ⏳ Todo | - | Based on backtest results |
-| 5.6 | Performance optimization | Low | ⏳ Todo | - | Caching, async calls |
-| 5.7 | Security audit | Medium | ⏳ Todo | - | Check credentials, API keys |
-| 5.8 | Documentation review | Low | ⏳ Todo | - | Update README, add examples |
-
-**Phase 5 Completion:** 0% (0/8 tasks)
-
----
-
-## 🎯 Milestones
-
-| Milestone | Target | Status | Dependencies |
-|-----------|--------|--------|--------------|
-| **M1:** Data Engine Working | Week 2 | ⏳ Pending | Phase 1 tasks |
-| **M2:** Basic Confluence | Week 4 | ⏳ Pending | Phase 2.1-2.6 |
-| **M3:** AI Integration Live | Week 5 | ⏳ Pending | Phase 3.1-3.6 |
-| **M4:** UI Beta Ready | Week 6 | ⏳ Pending | Phase 4.1-4.7 |
-| **M5:** Production Release | Week 7 | ⏳ Pending | All phases |
-
----
-
-## 📈 Progress Tracking
-
-### Weekly Progress Log
-
-#### Week 1 (Current)
-- ✅ Completed all technical specifications
-- ✅ Optimized strategy.md with EMA 50 focus
-- ✅ Optimized architechture.md with full details
-- ✅ MT5 connection completed (data_engine.py)
-- ✅ Python environment setup (Python 3.13.1 + dependencies)
-- ⚠️ Security issue: Credentials hardcoded (need task 1.9)
-- ⏳ Next: Move credentials to .env & implement MTF fetch
-
-#### Week 2 (Planned)
-- Setup development environment
-- Implement data fetching module
-- Test MT5 connection
-- Milestone M1: Data Engine Working
-
-#### Week 3-4 (Planned)
-- Implement analytics logic
-- Build confluence scoring
-- Milestone M2: Basic Confluence
-
----
-
-## 🔄 Task Status Legend
-
-- ✅ **Done** - Task completed and verified
-- 🚧 **In Progress** - Currently being worked on
-- ⏳ **Todo** - Not started yet
-- 🔴 **Blocked** - Waiting on dependencies
-- ⚠️ **Review** - Needs code review
-- 🧪 **Testing** - In testing phase
-
----
-
-## 📝 Task Update Guidelines
-
-### How to Update This Document
-
-1. **Starting a task:**
-   - Change status from ⏳ Todo → 🚧 In Progress
-   - Add your name to Owner column
-   - Add start date to Notes
-
-2. **Completing a task:**
-   - Change status from 🚧 In Progress → ✅ Done
-   - Add completion date to Notes
-   - Update phase completion percentage
-
-3. **Blocking a task:**
-   - Change status to 🔴 Blocked
-   - Add reason and dependencies to Notes
-
-4. **Weekly updates:**
-   - Add entry to Weekly Progress Log
-   - Update milestone status
-   - Recalculate overall completion %
-
----
-
-## 🎯 Next Steps (Immediate Priorities)
-
-### This Week
-1. ⚡ **Move credentials to .env** (ID 1.9) - **HIGH PRIORITY**
-   - Create .env file
-   - Add MT5 credentials to .env
-   - Update data_engine.py to load from environment
-   - Add .env to .gitignore
-
-2. ⚡ **Setup Python environment** (ID 1.2)
-   - Install Python 3.10+
-   - Create virtual environment
-   - Install all dependencies from requirements.txt
-
-3. ⚡ **Implement MTF fetch** (ID 1.4)
-   - Build fetch_rates() function (already exists, verify)
-   - Test all 5 timeframes
-   - Verify data integrity
-
-### Next Week
-1. Calculate EMA 50 (ID 2.1)
-2. Detect AOI zones (ID 2.2)
-3. Implement trend detection (ID 2.3)
-
----
-
-## 📊 Dependencies Graph
-
-```
-Phase 1 (Data)
-    ↓
-Phase 2 (Analytics)
-    ↓
-Phase 3 (AI) + Phase 4 (UI)
-    ↓
-Phase 5 (Testing)
-```
-
-**Critical Path:**
-1.3 → 1.4 → 1.5 → 2.1 → 2.6 → 3.1 → 4.1 → 5.3
-
----
-
-## 💡 Notes & Considerations
-
-### Technical Debt
-- None currently (project just started)
-
-### Known Issues
-- None currently
-
-### Future Enhancements (Post-MVP)
-- Database integration for historical storage
-- Multi-user support
-- Alert notifications
-- Mobile app
-- Machine learning models
-
----
-
-## 🔗 Related Documents
-
-- [strategy.md](strategy.md) - Trading strategy specification
-- [architechture.md](architechture.md) - System architecture
-- [watchlist.md](watchlist.md) - Symbol specifications
-- [README.md](../../README.md) - Project overview
-
----
-
-*Roadmap last updated: 24/12/2025*  
-*Next review: Weekly on Mondays*
+📌 Trading Tool – Task List & Project Roadmap (Trader-Grade)
+
+This document defines the full development roadmap for the Trading Decision Support Tool.
+The goal is to build a professional MTF confluence-based trading assistant, not an indicator or auto-trading bot.
+
+📊 Project Status Overview
+
+Current Phase: Phase 1 – Foundation & Data
+Overall Completion: ~40%
+Last Updated: 25/12/2025
+
+Philosophy
+
+❌ No auto-trading
+
+❌ No AI-first logic
+
+✅ Confluence > AI
+
+✅ Structure > Indicator
+
+✅ Trade filtering > Trade frequency
+
+🧭 Development Phases Overview
+Phase	Name	Purpose
+Phase 1	Foundation & Data	Reliable MT5 data engine
+Phase 2	Trading Logic & Confluence	Core trading intelligence
+Phase 3	AI Validation Layer	Optional AI confirmation
+Phase 4	User Interface	Trader-focused dashboard
+Phase 5	Testing & Optimization	Validation & performance
+🧱 Phase 1 – Foundation & Data Engineering
+
+Goal: Stable, secure, multi-timeframe data source
+Blocking Phase: YES (must be 100% before Phase 2)
+
+ID	Task	Priority	Status	Notes
+1.1	Write trading & system specifications	High	✅ Done	strategy.md, architecture.md
+1.2	Setup Python environment & dependencies	High	✅ Done	Python 3.13
+1.3	Connect to MetaTrader 5 terminal	High	✅ Done	Tested & stable
+1.4	Fetch multi-timeframe OHLC data	High	✅ Done	W / D / 4H / 1H / 30m
+1.5	Normalize & structure DataFrames	High	✅ Done	Dict {tf: df}
+1.6	Load watchlist from YAML	Medium	✅ Done	Flexible symbols
+1.7	Robust error handling & retry logic	Medium	✅ Done	Retries added
+1.8	Data caching (5-minute TTL)	Medium	✅ Done	Streamlit cache
+1.9	Move credentials to .env	🔴 High	✅ Done	os.getenv
+
+Phase 1 Completion: 100%
+✅ Phase 1 Complete - Ready for Phase 2
+
+🧠 Phase 2 – Trading Logic & Confluence Engine (CORE)
+
+Goal: Encode discretionary trading logic into deterministic rules
+This is the heart of the system
+
+🔹 2.1 Market Structure (MANDATORY)
+ID	Task	Priority	Status	Notes
+2.1	Detect market structure (HH/HL – LH/LL)	🔴 High	✅ Done	4H & 1H
+				Output: Bullish / Bearish / Transition
+🔹 2.2 EMA 50 Logic (NOT just calculation)
+ID	Task	Priority	Status	Notes
+2.2	EMA 50 calculation (all TF)	High	✅ Done	EMA50 + ATR Normalization
+2.3	EMA position logic	🔴 High	✅ Done	ATR Zone Buffer & Rejection
+2.4	EMA slope detection	High	✅ Done	ATR Normalized Slope
+🔹 2.3 AOI (Area of Interest)
+ID	Task	Priority	Status	Notes
+2.5	Detect HTF AOI zones	🔴 High	✅ Done	4H / Daily
+2.6	Detect LTF AOI zones	High	✅ Done	1H / 30m
+2.7	Evaluate AOI strength	🔴 High	✅ Done Touches + reaction
+🔹 2.4 Trend & Context Filters
+ID	Task	Priority	Status	Notes
+2.8	Trend classification	High	[/] In Progress	Bull / Bear / Range
+2.9	Psychological levels	Medium	⏳ Todo	Round numbers
+2.10	Session context detection	Medium	⏳ Todo	Asia / London / NY
+🔹 2.5 Entry & Signal Quality
+ID	Task	Priority	Status	Notes
+2.11	Entry confirmation logic	🔴 High	⏳ Todo	Rejection / Momentum
+2.12	Break & Retest detection	High	⏳ Todo	Structure-aware
+2.13	Volume confirmation	Medium	⏳ Todo	Above avg volume
+🔹 2.6 Confluence Scoring System
+ID	Task	Priority	Status	Notes
+2.14	HTF confluence score	🔴 High	⏳ Todo	Structure + EMA + AOI
+2.15	Signal TF confluence score	High	⏳ Todo	Entry quality
+2.16	Weighted overall confluence	🔴 High	⏳ Todo	60% HTF / 40% Signal
+🔹 2.7 Trade Filters (Trader Mindset)
+ID	Task	Priority	Status	Notes
+2.17	Setup validation filter	🔴 High	⏳ Todo	Reject bad setups
+2.18	No-trade zone detection	Medium	⏳ Todo	Range / flat EMA
+2.19	Structure conflict filter	High	⏳ Todo	HTF vs LTF
+
+Phase 2 Completion: ~10%
+🎯 MVP becomes usable when Phase 2 is DONE
+
+🤖 Phase 3 – AI Validation Layer (OPTIONAL, NON-BLOCKING)
+
+Goal: AI acts as a second opinion, never decision maker
+
+ID	Task	Priority	Status	Notes
+3.1	OpenAI API integration	High	🚧 In Progress	Basic function
+3.2	AI prompt templates	High	⏳ Todo	Trader language
+3.3	Format MTF data for AI	Medium	⏳ Todo	Condensed JSON
+3.4	Parse AI response	Medium	⏳ Todo	Bias + confidence
+3.5	AI confidence gate	Medium	⏳ Todo	Ignore low confidence
+3.6	Confluence adjustment ±10%	Medium	⏳ Todo	Controlled impact
+3.7	AI fallback logic	Low	⏳ Todo	Non-AI mode
+3.8	Rate limit & cost control	Low	⏳ Todo	Safety
+🖥️ Phase 4 – User Interface (Trader-Focused)
+
+Goal: Fast decision-making, minimal noise
+
+ID	Task	Priority	Status	Notes
+4.1	Streamlit app bootstrap	High	✅ Done	app.py
+4.2	Sidebar controls	High	✅ Done	Symbol / TF
+4.3	Overview table (CORE UI)	🔴 High	⏳ Todo	Sorted by confluence
+4.4	Checklist breakdown view	High	⏳ Todo	Why / why not
+4.5	MTF chart visualization	Medium	🚧 In Progress	Clean & minimal
+4.6	AI opinion panel	Medium	⏳ Todo	Optional
+4.7	Trade suggestion (non-auto)	Medium	⏳ Todo	Entry / SL / TP
+4.8	Color coding & alerts	Low	⏳ Todo	Green / Yellow / Red
+4.9	Symbol detail expand view	Medium	⏳ Todo	Drill-down
+🧪 Phase 5 – Testing & Optimization
+
+Goal: Trust the tool before trusting capital
+
+ID	Task	Priority	Status	Notes
+5.1	Unit tests – data engine	High	⏳ Todo	Mock MT5
+5.2	Unit tests – logic engine	High	⏳ Todo	Structure & scoring
+5.3	Integration testing	High	⏳ Todo	End-to-end
+5.4	Backtest individual modules	Medium	⏳ Todo	EMA / AOI / score
+5.5	Optimize scoring weights	Medium	⏳ Todo	Data-driven
+5.6	Performance optimization	Low	⏳ Todo	Cache / async
+5.7	Security audit	Medium	⏳ Todo	API & env
+5.8	Documentation & examples	Low	⏳ Todo	README
+🎯 Milestones
+Milestone	Target	Criteria
+M1	Data Engine Ready	Phase 1 = 100%
+M2	Trading Logic MVP	Phase 2 = DONE
+M3	AI Validation Live	Phase 3 core
+M4	UI Beta	Phase 4 core
+M5	Production Ready	Phase 5
+🧠 Final Notes
+
+This tool is a decision support system, not an EA
+
+The system must be able to say “NO TRADE”
+
+If Phase 2 is solid → AI & UI are just bonuses

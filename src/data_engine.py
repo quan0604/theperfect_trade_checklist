@@ -2,9 +2,18 @@ import MetaTrader5 as mt5
 import pandas as pd
 from datetime import datetime, timedelta
 import pytz
+import time
+import os
 import sys
+import yaml
+import streamlit as st
+import streamlit as st
+# =========================
+# CONFIG
+# =========================
+MAX_RETRIES = 3
+RETRY_DELAY = 1  # seconds
 
-# Define standard multi-timeframes
 TIMEFRAMES = {
     "Weekly": mt5.TIMEFRAME_W1,
     "Daily": mt5.TIMEFRAME_D1,
@@ -13,111 +22,201 @@ TIMEFRAMES = {
     "30m": mt5.TIMEFRAME_M30
 }
 
-def connect_mt5(terminal_path=r"C:\Program Files\MetaTrader 5\terminal64.exe", login=270462811, password="Quan0604@", server="Exness-MT5Trial17"):
-    """
-    Connect to MetaTrader 5 terminal.
-    Args:
-        terminal_path: path to terminal64.exe (optional).
-        login, password, server: credentials if needed (optional).
-    Returns:
-        None -- raises Exception if connection fails.
-    """
-    if terminal_path:
-        initialized = mt5.initialize(path=terminal_path, login=login, password=password, server=server)
-    else:
-        initialized = mt5.initialize()
-    
-    if not initialized:
-        raise ConnectionError(f"MT5 initialize failed. Error code: {mt5.last_error()}")
-    
-    print("MT5 connected successfully. Terminal info:", mt5.terminal_info())
+MIN_BARS = {
+    "Weekly": 80,
+    "Daily": 120,
+    "4H": 200,
+    "1H": 300,
+    "30m": 500
+}
 
+# =========================
+# MT5 CONNECTION
+# =========================
+def connect_mt5():
+    terminal_path = os.getenv("MT5_PATH")
+    login = int(os.getenv("MT5_LOGIN"))
+    password = os.getenv("MT5_PASSWORD")
+    server = os.getenv("MT5_SERVER")
+
+    if not mt5.initialize(
+        path=terminal_path,
+        login=login,
+        password=password,
+        server=server
+    ):
+        raise ConnectionError(f"MT5 initialize failed: {mt5.last_error()}")
+
+    print("✅ MT5 connected")
+
+def reconnect_mt5():
+    print("[INFO] Reconnecting MT5...")
+    mt5.shutdown()
+    time.sleep(1)
+    connect_mt5()
+
+# =========================
+# DATA STANDARDIZATION
+# =========================
+def standardize_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    df = df[["open", "high", "low", "close", "tick_volume"]]
+    df.columns = ["open", "high", "low", "close", "volume"]
+    df.sort_index(inplace=True)
+    return df
+
+# =========================
+# FETCH RAW DATA
+# =========================
 def fetch_rates(symbol, timeframe, from_date, to_date):
-    """
-    Fetch OHLCV data for a symbol for a given timeframe.
-    Returns:
-        pd.DataFrame indexed by UTC time (or raises error if not available).
-    """
     if not mt5.symbol_select(symbol, True):
-        raise ValueError(f"Symbol {symbol} not found or not tradable.")
+        raise ValueError(f"Symbol {symbol} not tradable")
+
     rates = mt5.copy_rates_range(symbol, timeframe, from_date, to_date)
     if rates is None or len(rates) == 0:
-        raise ValueError(f"No data for {symbol} on {timeframe}.")
-    df = pd.DataFrame(rates)
-    df['time'] = pd.to_datetime(df['time'], unit='s').dt.tz_localize('UTC')
-    return df.set_index('time')
+        raise ValueError("No data returned")
 
+    df = pd.DataFrame(rates)
+    df["time"] = pd.to_datetime(df["time"], unit="s").dt.tz_localize("UTC")
+    return df.set_index("time")
+
+# =========================
+# RETRY WRAPPER (TASK 1.7 CORE)
+# =========================
+def fetch_with_retry(symbol, tf_label, tf, from_date, to_date):
+    last_error = None
+
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            return fetch_rates(symbol, tf, from_date, to_date)
+
+        except Exception as e:
+            last_error = str(e)
+            print(f"[WARN] {symbol} {tf_label} retry {attempt}/{MAX_RETRIES} – {last_error}")
+            time.sleep(RETRY_DELAY)
+
+            # Auto reconnect if MT5 issue
+            if "initialize" in last_error.lower() or "mt5" in last_error.lower():
+                reconnect_mt5()
+
+    raise RuntimeError(last_error)
+
+# =========================
+
+
+# =========================
+# MULTI TIMEFRAME FETCH
+# =========================
 def fetch_multi_timeframe(symbol, days_back=60):
-    """
-    Fetch data for all timeframes for a symbol.
-    Returns a dict of DataFrames {timeframe_label: df}.
-    """
     to_date = datetime.utcnow().replace(tzinfo=pytz.UTC)
     from_date = to_date - timedelta(days=days_back)
-    data_dict = {}
-    errors = {}
+    tf_context = {}
+
     for label, tf in TIMEFRAMES.items():
         try:
-            df = fetch_rates(symbol, tf, from_date, to_date)
-            data_dict[label] = df
+            raw_df = fetch_with_retry(symbol, label, tf, from_date, to_date)
+            df = standardize_dataframe(raw_df)
+
+            bars = len(df)
+            valid = bars >= MIN_BARS[label]
+
+            tf_context[label] = {
+                "df": df,
+                "bars": bars,
+                "valid": valid,
+                "suitable": valid,
+                "price": {
+                    "close": df["close"].iloc[-1],
+                    "high": df["high"].iloc[-1],
+                    "low": df["low"].iloc[-1],
+                },
+                "error": None
+            }
+
         except Exception as e:
-            errors[label] = str(e)
-            print(f"Warning: {label} fetch failed for {symbol}: {e}")
-    return data_dict, errors
+            tf_context[label] = {
+                "df": None,
+                "bars": 0,
+                "valid": False,
+                "suitable": False,
+                "price": None,
+                "error": str(e)
+            }
 
-def fetch_all_watchlist(watchlist, days_back=60):
-    """
-    Fetch all timeframes for all symbols in the watchlist.
-    Returns a dict: {symbol: (data_dict, errors_dict)}
-    """
-    all_data = {}
-    for symbol in watchlist:
-        print(f"\nFetching data for {symbol}...")
-        data, errors = fetch_multi_timeframe(symbol, days_back)
-        all_data[symbol] = (data, errors)
-    return all_data
+    return tf_context
 
-import yaml
+# =========================
+# MARKET CONTEXT
+# =========================
+@st.cache_data(ttl=300, show_spinner="📡 Fetching market data...")
+def build_market_context(symbol, days_back=60):
+    return {
+        "symbol": symbol,
+        "last_update": datetime.utcnow(),
+        "timeframes": fetch_multi_timeframe(symbol, days_back),
+        "meta": {
+            "source": "MetaTrader5",
+            "timezone": "UTC",
+            "cached": True
+        }
+    }
 
+# =========================
+# WATCHLIST
+# =========================
 def load_watchlist_from_yaml(file_path="watchlist.yaml"):
-    """
-    Load watchlist symbols from a YAML file.
-    Supports majors, crosses, commodities groups.
-    Returns a flat list of all symbols (auto uppercase, strip special chars).
-    """
     with open(file_path, encoding="utf-8") as f:
         y = yaml.safe_load(f)
+
     symbols = []
     for group in y.values():
-        # Xử lý ký tự đặc biệt và đổi về viết hoa
-        symbols.extend([s.upper().replace("/", "").replace("-", "") for s in group])
-    return sorted(list(set(symbols)))  # unique + sorted
+        symbols.extend(
+            [s.upper().replace("/", "").replace("-", "") for s in group]
+        )
+
+    return sorted(set(symbols))
 
 WATCHLIST = load_watchlist_from_yaml()
 
+def fetch_all_watchlist(watchlist, days_back=60):
+    results = {}
+
+    for symbol in watchlist:
+        try:
+            results[symbol] = build_market_context(symbol, days_back)
+        except Exception as e:
+            print(f"[ERROR] {symbol} skipped – {e}")
+
+    return results
+
+# =========================
+# SHUTDOWN
+# =========================
 def shutdown_mt5():
-    if mt5.shutdown():
-        print("MT5 shutdown successful.")
-    else:
-        print("MT5 shutdown failed!")
+    mt5.shutdown()
+    print("🛑 MT5 shutdown")
 
+# =========================
+# CLI TEST
+# =========================
 if __name__ == "__main__":
-
     try:
-        # CLI: python src/data_engine.py EURUSD  (or use input)
-        symbol = sys.argv[1] if len(sys.argv) > 1 else input("Enter symbol (e.g. EURUSD): ").strip().upper()
-        terminal_path = r"C:\Program Files\MetaTrader 5\terminal64.exe"
-        login = 270462811
-        password = "Quan0604@"
-        server = "Exness-MT5Trial17"
-        connect_mt5(terminal_path=terminal_path, login=login, password=password, server=server)
-        data, errors = fetch_multi_timeframe(symbol)
-        for label, df in data.items():
-            print(f"\n{label} data shape: {df.shape}")
-            print(df.tail(5))
-        if errors:
-            print("\nThe following timeframes failed:", errors)
+        symbol = sys.argv[1] if len(sys.argv) > 1 else "EURUSD"
+        connect_mt5()
+
+        ctx = build_market_context(symbol)
+
+        print(f"\n📊 Market Context for {symbol}")
+        for tf, info in ctx["timeframes"].items():
+            print(
+                f"{tf}: valid={info['valid']}, "
+                f"suitable={info['suitable']}, "
+                f"bars={info['bars']}, "
+                f"error={info['error']}"
+            )
+
     except Exception as e:
-        print("Fatal error:", e)
+        print("❌ Fatal error:", e)
+
     finally:
         shutdown_mt5()
